@@ -22,13 +22,14 @@ public class DriveQuickStart
 		System.out.println("9. Esci");
 	}
 	
+
 	private static void stampaElenco(File file) throws IOException
 	{	
 		GoogleDriveSubfolders googleDriveSubfolders = new GoogleDriveSubfoldersImpl(service);	
 		
 		List<File> files = googleDriveSubfolders.getGoogleDriveSubFolders(file);
 		
-		if (files != null || !(files.isEmpty()))
+		if (files != null && !(files.isEmpty()))
 		{
 			files.stream().forEach(f -> {
 				
@@ -51,6 +52,11 @@ public class DriveQuickStart
 			});
 		}		
 	}
+	
+	private static void sincronizza(String cartella) 
+	{
+		
+	}
 		
 	public static void main(String[] args) throws IOException, GeneralSecurityException
 	{	
@@ -65,10 +71,17 @@ public class DriveQuickStart
 			printMenu();
 			scelta = scan.nextInt();			
 			
+			
 			switch (scelta)
 			{
 				case 1:
 					stampaElenco(null);
+					break;
+				case 2:
+					String cartella;
+					System.out.println("Percorso assoluto cartella da sincronizzare:");
+					cartella = scan.nextLine();
+					sincronizza(cartella);
 					break;
 				case 9:
 					return;
