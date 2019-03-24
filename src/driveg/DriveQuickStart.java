@@ -4,46 +4,57 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 
 public class DriveQuickStart
 {
-		
+			
 	private static GoogleDriveService driveService = new GoogleDriveServiceImpl();
+	private static Drive service = null;
 	
 	private static void printMenu() 
 	{
 		System.out.println("1. Elenco files/cartelle");
+		System.out.println("2. Sincronizza cartella");
 		System.out.println("9. Esci");
 	}
 	
-	private static void stampaElenco(Drive service) throws IOException
-	{
-		FileList result = service
-				.files()
-				.list()
-				.setPageSize(10)
-				.setFields("nextPageToken, files(id, name)")
-				.execute();
+	private static void stampaElenco(File file) throws IOException
+	{	
+		GoogleDriveSubfolders googleDriveSubfolders = new GoogleDriveSubfoldersImpl(service);	
 		
-		List<File> files = result.getFiles();
-		if (files == null || files.isEmpty())
-			System.out.println("Non ci sono files");
-		else
+		List<File> files = googleDriveSubfolders.getGoogleDriveSubFolders(file);
+		
+		if (files != null || !(files.isEmpty()))
 		{
-			System.out.println("Files:");
-			files.stream().forEach(file -> {
-				System.out.printf("Id: %s\t Nome: %s\n", file.getId(), file.getName());				
+			files.stream().forEach(f -> {
+				
+				System.out.printf("Id: %s\n", f.getId());
+				System.out.printf("Nome: %s\n", f.getName());
+				Stream.generate(() -> '-' )
+					.limit(20)
+					.forEach( c -> System.out.print(c));
+				System.out.print('\n');
+				
+				try 
+				{
+					stampaElenco(f); 
+				} 
+				catch (IOException ioe) 
+				{
+					ioe.printStackTrace();
+				}
+					
 			});
 		}		
 	}
 		
 	public static void main(String[] args) throws IOException, GeneralSecurityException
 	{	
-		Drive service = driveService.getDrive();
+		service = driveService.getDrive();
 
 		int scelta;
 		
@@ -57,7 +68,7 @@ public class DriveQuickStart
 			switch (scelta)
 			{
 				case 1:
-					stampaElenco(service);
+					stampaElenco(null);
 					break;
 				case 9:
 					return;
